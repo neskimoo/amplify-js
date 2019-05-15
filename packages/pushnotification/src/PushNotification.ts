@@ -243,7 +243,7 @@ export default class PushNotification {
         }
     }
 
-    updateEndpoint(token) {
+    updateEndpoint(token, optOut?) {
         if (!token) {
             logger.debug('no device token recieved on register');
             return;
@@ -251,13 +251,14 @@ export default class PushNotification {
 
         const { appId } = this._config;
         const cacheKey = 'push_token' + appId;
+        const optOutOptions = ['ALL','NONE'];
         logger.debug('update endpoint in push notification', token);
         AsyncStorage.getItem(cacheKey).then((lastToken) => {
             if (!lastToken || lastToken !== token) {
                 logger.debug('refresh the device token with', token);
                 const config = {
                     Address: token,
-                    OptOut: 'NONE'
+                    OptOut: (optOut !== undefined && optOutOptions.indexOf(optOut) > -1) ? optOut : 'NONE'
                 };
                 if (Amplify.Analytics && typeof Amplify.Analytics.updateEndpoint === 'function') {
                     Amplify.Analytics.updateEndpoint(config).then((data) => {
